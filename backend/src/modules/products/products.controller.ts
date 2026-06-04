@@ -8,9 +8,13 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto/product.dto';
@@ -36,6 +40,14 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get featured products' })
   getFeatured(@Query('limit') limit?: number) {
     return this.productsService.findFeatured(limit);
+  }
+
+  @Get('admin')
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all products including inactive (Admin)' })
+  getAdminProducts(@Query() query: ProductQueryDto) {
+    return this.productsService.getAdminProducts(query);
   }
 
   @Public()
@@ -80,12 +92,13 @@ export class ProductsController {
   @Post(':id/images')
   @Roles('ADMIN', 'SUPER_ADMIN')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Add images to product (Admin)' })
+  @ApiOperation({ summary: 'Upload images to product (Admin)' })
+  @UseInterceptors(FilesInterceptor('images', 10, { storage: memoryStorage() }))
   addImages(
     @Param('id') id: string,
-    @Body() body: { images: Array<{ url: string; publicId?: string; altText?: string }> },
+    @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.productsService.addImages(id, body.images);
+    return this.productsService.uploadAndSaveImages(id, files);
   }
 
   @Delete('images/:imageId')

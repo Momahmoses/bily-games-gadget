@@ -4,14 +4,25 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto/product.dto';
 import slugify from 'slugify';
 import { Prisma } from '@prisma/client';
+import { v2 as cloudinary } from 'cloudinary';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {
+    cloudinary.config({
+      cloud_name: configService.get<string>('cloudinary.cloudName'),
+      api_key: configService.get<string>('cloudinary.apiKey'),
+      api_secret: configService.get<string>('cloudinary.apiSecret'),
+    });
+  }
 
   async create(dto: CreateProductDto) {
     const slug = await this.generateUniqueSlug(dto.name);
@@ -275,6 +286,48 @@ export class ProductsService {
     );
 
     return { data: created, message: 'Images added successfully' };
+  }
+
+  async uploadAndSaveImages(productId: string, files: Express.Multer.File[]) {
+    if (!files || files.length === 0) throw new BadRequestException('No images provided');
+
+    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    if (!product) throw new NotFoundException('Product not found');
+
+    const existingCount = await this.prisma.productImage.count({ where: { productId } });
+
+    const uploaded = await Promise.all(
+      files.map(
+        (file) =>
+          new Promise<{ url: string; publicId: string }>((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: 'products', resource_type: 'image' },
+              (err, result) => {
+                if (err || !result) reject(err || new Error('Upload failed'));
+                else resolve({ url: result.secure_url, publicId: result.public_id });
+              },
+            );
+            stream.end(file.buffer);
+          }),
+      ),
+    );
+
+    const created = await this.prisma.$transaction(
+      uploaded.map((img, i) =>
+        this.prisma.productImage.create({
+          data: {
+            productId,
+            url: img.url,
+            publicId: img.publicId,
+            altText: product.name,
+            isPrimary: existingCount === 0 && i === 0,
+            sortOrder: existingCount + i,
+          },
+        }),
+      ),
+    );
+
+    return { data: created, message: 'Images uploaded successfully' };
   }
 
   async deleteImage(imageId: string) {

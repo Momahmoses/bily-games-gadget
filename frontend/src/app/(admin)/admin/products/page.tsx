@@ -21,7 +21,7 @@ export default function AdminProductsPage() {
     queryFn: () => {
       const params = new URLSearchParams({ page: String(page), limit: '20' });
       if (search) params.set('search', search);
-      return api.get(`/products?${params}&admin=true`) as Promise<any>;
+      return api.get(`/products/admin?${params}`) as Promise<any>;
     },
   });
 

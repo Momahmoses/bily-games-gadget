@@ -28,6 +28,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SearchModule } from './modules/search/search.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
+import { BrandsModule } from './modules/brands/brands.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -65,6 +67,8 @@ import { CouponsModule } from './modules/coupons/coupons.module';
     SearchModule,
     BannersModule,
     CouponsModule,
+    BrandsModule,
+    SettingsModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

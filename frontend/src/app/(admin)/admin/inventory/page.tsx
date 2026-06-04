@@ -34,15 +34,20 @@ export default function InventoryPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-inventory', page, filter, search],
-    queryFn: () => api.get(`/inventory?page=${page}&limit=20&filter=${filter}&search=${search}`) as Promise<any>,
+    queryFn: () =>
+      filter === 'low'
+        ? (api.get('/inventory/low-stock') as Promise<any>)
+        : (api.get(`/inventory?page=${page}&limit=20&search=${search}`) as Promise<any>),
   });
 
   const items: InventoryItem[] = data?.data || [];
   const meta = data?.meta;
 
   const adjustMutation = useMutation({
-    mutationFn: ({ productId, type, quantity, note }: { productId: string; type: string; quantity: number; note?: string }) =>
-      api.post(`/inventory/${productId}/adjust`, { type, quantity, note }),
+    mutationFn: ({ productId, type, quantity, note, currentQty }: { productId: string; type: string; quantity: number; note?: string; currentQty: number }) => {
+      const signedQty = type === 'OUT' ? -quantity : type === 'ADJUSTMENT' ? quantity - currentQty : quantity;
+      return api.post(`/inventory/products/${productId}/adjust`, { quantity: signedQty, note });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-inventory'] });
       setAdjustModal(null);
@@ -62,6 +67,7 @@ export default function InventoryPage() {
       type: adjustModal.type,
       quantity: qty,
       note: adjustNote || undefined,
+      currentQty: adjustModal.item.quantity,
     });
   };
 

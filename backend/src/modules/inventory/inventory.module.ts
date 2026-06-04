@@ -11,8 +11,7 @@ import {
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators';
-import { ScheduleModule } from '@nestjs/schedule';
+import { CurrentUser, Roles } from '../../common/decorators';
 
 class AdjustStockDto {
   @ApiProperty() @IsNumber() quantity: number;
@@ -64,12 +63,12 @@ export class InventoryService {
 
   async getLowStockItems() {
     const items = await this.prisma.inventory.findMany({
-      where: { trackStock: true, quantity: { lte: this.prisma.inventory.fields.lowStockAlert } },
+      where: { trackStock: true },
       include: {
         product: { select: { id: true, name: true, sku: true } },
       },
     });
-    return { data: items };
+    return { data: items.filter((i) => i.quantity <= i.lowStockAlert) };
   }
 
   async adjustStock(productId: string, dto: AdjustStockDto, adminId: string) {
@@ -181,9 +180,17 @@ class InventoryController {
   adjustStock(
     @Param('productId') productId: string,
     @Body() dto: AdjustStockDto,
-    @Query('adminId') adminId: string,
+    @CurrentUser('id') adminId: string,
   ) {
     return this.inventoryService.adjustStock(productId, dto, adminId);
+  }
+
+  @Put('products/:productId/alert')
+  setLowStockAlert(
+    @Param('productId') productId: string,
+    @Body('threshold') threshold: number,
+  ) {
+    return this.inventoryService.setLowStockAlert(productId, threshold);
   }
 
   @Get('products/:productId/movements')
@@ -197,7 +204,6 @@ class InventoryController {
 }
 
 @Module({
-  imports: [ScheduleModule.forRoot()],
   controllers: [InventoryController],
   providers: [InventoryService],
   exports: [InventoryService],

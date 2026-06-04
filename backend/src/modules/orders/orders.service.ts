@@ -226,17 +226,13 @@ export class OrdersService {
         },
       });
 
-      if (dto.status === OrderStatus.DELIVERED || dto.status === OrderStatus.CANCELLED) {
-        for (const item of order ? [] : []) {
-          // Release reserved inventory
-        }
-      }
-
       return updatedOrder;
     });
 
     if (dto.status === OrderStatus.PAID) {
       await this.releaseReservedInventoryAndDeduct(orderId);
+    } else if (dto.status === OrderStatus.CANCELLED) {
+      await this.releaseReservedInventory(orderId);
     }
 
     this.eventEmitter.emit('order.statusChanged', { order: updated, newStatus: dto.status });
@@ -323,6 +319,28 @@ export class OrdersService {
       data: orders,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
+  }
+
+  private async releaseReservedInventory(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) return;
+
+    for (const item of order.items) {
+      if (item.variantId) {
+        await this.prisma.variantInventory.updateMany({
+          where: { variantId: item.variantId },
+          data: { reservedQty: { decrement: item.quantity } },
+        });
+      } else {
+        await this.prisma.inventory.updateMany({
+          where: { productId: item.productId },
+          data: { reservedQty: { decrement: item.quantity } },
+        });
+      }
+    }
   }
 
   private async releaseReservedInventoryAndDeduct(orderId: string) {

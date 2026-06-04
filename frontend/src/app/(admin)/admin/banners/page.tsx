@@ -31,7 +31,7 @@ export default function BannersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-banners'],
-    queryFn: () => api.get('/banners') as Promise<any>,
+    queryFn: () => api.get('/banners/all') as Promise<any>,
   });
 
   const banners: Banner[] = data?.data || [];

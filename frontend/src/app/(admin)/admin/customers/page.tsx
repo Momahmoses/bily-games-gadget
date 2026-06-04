@@ -17,14 +17,14 @@ export default function CustomersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-customers', page, search, roleFilter],
-    queryFn: () => api.get(`/users?page=${page}&limit=20&search=${search}&role=${roleFilter}`) as Promise<any>,
+    queryFn: () => api.get(`/users/admin?page=${page}&limit=20&search=${search}`) as Promise<any>,
   });
 
   const customers: User[] = data?.data || [];
   const meta = data?.meta;
 
   const toggleMutation = useMutation({
-    mutationFn: (userId: string) => api.put(`/users/${userId}/toggle-status`, {}),
+    mutationFn: (userId: string) => api.put(`/users/admin/${userId}/toggle-status`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
       toast.success('Status updated');

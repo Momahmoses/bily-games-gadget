@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, BarChart3,
   Tag, Settings, Bell, Gamepad2, LogOut, Image as ImageIcon,
-  MessageSquare, Warehouse, Percent,
+  MessageSquare, Warehouse, Percent, Award,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/lib/utils';
@@ -22,6 +22,7 @@ const navItems = [
   { label: 'Coupons', href: '/admin/coupons', icon: Percent },
   { label: 'Banners', href: '/admin/banners', icon: ImageIcon },
   { label: 'Support', href: '/admin/support', icon: MessageSquare },
+  { label: 'Brands', href: '/admin/brands', icon: Award },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

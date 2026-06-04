@@ -20,8 +20,8 @@ interface Coupon {
   usageLimit?: number;
   usageCount: number;
   isActive: boolean;
-  startsAt?: string;
-  expiresAt?: string;
+  startDate?: string;
+  endDate?: string;
   createdAt: string;
 }
 
@@ -32,8 +32,8 @@ const couponSchema = z.object({
   maxDiscount: z.coerce.number().optional(),
   minOrderAmount: z.coerce.number().optional(),
   usageLimit: z.coerce.number().optional(),
-  startsAt: z.string().optional(),
-  expiresAt: z.string().optional(),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
   isActive: z.boolean().default(true),
 });
 
@@ -45,7 +45,7 @@ export default function CouponsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-coupons'],
-    queryFn: () => api.get('/coupons') as Promise<any>,
+    queryFn: () => api.get('/coupons/admin') as Promise<any>,
   });
 
   const coupons: Coupon[] = data?.data || [];
@@ -58,19 +58,19 @@ export default function CouponsPage() {
   const couponType = watch('type');
 
   const createMutation = useMutation({
-    mutationFn: (d: CouponForm) => api.post('/coupons', d),
+    mutationFn: (d: CouponForm) => api.post('/coupons/admin', d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-coupons'] }); setShowForm(false); reset(); toast.success('Coupon created'); },
     onError: (e: any) => toast.error(e?.message || 'Failed to create coupon'),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => api.delete(`/coupons/${id}`),
+    mutationFn: (id: string) => api.delete(`/coupons/admin/${id}`),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin-coupons'] }); toast.success('Coupon deleted'); },
     onError: (e: any) => toast.error(e?.message || 'Failed'),
   });
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => api.put(`/coupons/${id}`, { isActive }),
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => api.put(`/coupons/admin/${id}`, { isActive }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-coupons'] }),
   });
 
@@ -135,12 +135,14 @@ export default function CouponsPage() {
                 <input type="number" {...register('minOrderAmount')} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
-                <input type="datetime-local" {...register('startsAt')} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Start Date *</label>
+                <input type="datetime-local" {...register('startDate')} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
+                {errors.startDate && <p className="text-red-500 text-xs mt-0.5">{errors.startDate.message}</p>}
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Expiry Date</label>
-                <input type="datetime-local" {...register('expiresAt')} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Expiry Date *</label>
+                <input type="datetime-local" {...register('endDate')} className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500" />
+                {errors.endDate && <p className="text-red-500 text-xs mt-0.5">{errors.endDate.message}</p>}
               </div>
             </div>
 

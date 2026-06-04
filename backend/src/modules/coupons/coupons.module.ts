@@ -9,12 +9,12 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Public, Roles } from '../../common/decorators';
-import { IsString, IsNumber, IsOptional, IsBoolean, IsDateString, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsDateString, IsPositive, IsEnum } from 'class-validator';
 
 class CreateCouponDto {
   @IsString() code: string;
   @IsOptional() @IsString() description?: string;
-  code_type: CouponType;
+  @IsEnum(CouponType) type: CouponType;
   @IsNumber() @IsPositive() value: number;
   @IsOptional() @IsNumber() minOrderAmount?: number;
   @IsOptional() @IsNumber() maxDiscount?: number;
@@ -69,7 +69,7 @@ class CouponsService {
       data: {
         code: dto.code.toUpperCase(),
         description: dto.description,
-        type: dto.code_type,
+        type: dto.type,
         value: dto.value,
         minOrderAmount: dto.minOrderAmount,
         maxDiscount: dto.maxDiscount,
