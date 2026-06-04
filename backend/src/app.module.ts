@@ -30,6 +30,7 @@ import { BannersModule } from './modules/banners/banners.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
 import { BrandsModule } from './modules/brands/brands.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { SettingsModule } from './modules/settings/settings.module';
     CouponsModule,
     BrandsModule,
     SettingsModule,
+    ChatModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },

@@ -65,7 +65,9 @@
 
     "js-cookie": "^3.0.5",
 
-    "@types/js-cookie": "^3.0.6"
+    "@types/js-cookie": "^3.0.6",
+
+    "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
