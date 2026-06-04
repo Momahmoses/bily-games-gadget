@@ -98,7 +98,7 @@ export default function AddressesPage() {
             <button onClick={closeForm} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500"><X className="w-4 h-4" /></button>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { name: 'firstName' as const, label: 'First Name' },
                 { name: 'lastName' as const, label: 'Last Name' },
@@ -111,7 +111,7 @@ export default function AddressesPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
                 <input {...register('phone')} placeholder="+234..." className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500 bg-white" />
@@ -129,7 +129,7 @@ export default function AddressesPage() {
               {errors.address && <p className="text-red-500 text-xs mt-0.5">{errors.address.message}</p>}
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { name: 'city' as const, label: 'City' },
                 { name: 'state' as const, label: 'State' },
@@ -178,7 +178,7 @@ export default function AddressesPage() {
               {addr.isDefault && (
                 <span className="absolute top-3 right-3 text-xs bg-yellow-500 text-black font-bold px-2 py-0.5 rounded-full">Default</span>
               )}
-              <div className="flex items-start justify-between pr-16">
+              <div className="flex items-start justify-between pr-20 sm:pr-16">
                 <div className="text-sm space-y-0.5">
                   {addr.label && <p className="text-xs font-semibold text-yellow-600 uppercase tracking-wide">{addr.label}</p>}
                   <p className="font-semibold text-gray-900">{addr.firstName} {addr.lastName}</p>

@@ -99,7 +99,7 @@ export default function AdminChatPage() {
     room.user?.email || room.guestEmail || '';
 
   return (
-    <div className="p-6 h-[calc(100vh-80px)] flex flex-col">
+    <div className="p-4 sm:p-6 h-[calc(100vh-64px)] sm:h-[calc(100vh-80px)] flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-extrabold text-gray-900">Live Chat</h1>
@@ -128,9 +128,12 @@ export default function AdminChatPage() {
         </div>
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
         {/* Room list */}
-        <div className="w-72 shrink-0 bg-white rounded-2xl border border-gray-200 overflow-y-auto">
+        <div className={cn(
+          'bg-white rounded-2xl border border-gray-200 overflow-y-auto',
+          selectedRoom ? 'hidden md:block md:w-72 md:shrink-0' : 'w-full md:w-72 md:shrink-0',
+        )}>
           {rooms.length === 0 ? (
             <div className="py-12 text-center text-gray-400">
               <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30" />
@@ -173,7 +176,10 @@ export default function AdminChatPage() {
         </div>
 
         {/* Conversation panel */}
-        <div className="flex-1 bg-white rounded-2xl border border-gray-200 flex flex-col min-h-0">
+        <div className={cn(
+          'bg-white rounded-2xl border border-gray-200 flex flex-col min-h-0',
+          selectedRoom ? 'flex-1' : 'hidden md:flex flex-1',
+        )}>
           {!selectedRoom ? (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
               <MessageSquare className="w-12 h-12 mb-3 opacity-20" />
@@ -183,26 +189,35 @@ export default function AdminChatPage() {
           ) : (
             <>
               {/* Conversation header */}
-              <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
+              <div className="px-4 sm:px-5 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0 gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  {/* Back button — mobile only */}
+                  <button
+                    onClick={() => setSelectedRoom(null)}
+                    className="md:hidden p-1.5 -ml-1 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors shrink-0"
+                    aria-label="Back to chat list"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
                     <User className="w-5 h-5 text-gray-500" />
                   </div>
-                  <div>
-                    <p className="font-bold text-gray-900">{getDisplayName(selectedRoom)}</p>
-                    <p className="text-xs text-gray-400">{getEmail(selectedRoom)}</p>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 truncate">{getDisplayName(selectedRoom)}</p>
+                    <p className="text-xs text-gray-400 truncate">{getEmail(selectedRoom)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className={cn('text-xs font-semibold px-2.5 py-1 rounded-full', STATUS_STYLES[selectedRoom.status])}>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={cn('hidden sm:inline text-xs font-semibold px-2.5 py-1 rounded-full', STATUS_STYLES[selectedRoom.status])}>
                     {selectedRoom.status}
                   </span>
                   {selectedRoom.status !== 'CLOSED' && (
                     <button
                       onClick={handleClose}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-red-200"
+                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-xl transition-colors border border-red-200"
                     >
-                      <X className="w-3.5 h-3.5" /> Close chat
+                      <X className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Close</span>
                     </button>
                   )}
                 </div>

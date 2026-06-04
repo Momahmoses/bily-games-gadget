@@ -116,8 +116,10 @@ export default function ChatWidget() {
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-50 w-[360px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col transition-all',
-        isMinimized ? 'h-14' : 'h-[520px]',
+        'fixed z-50 bg-white shadow-2xl border border-gray-200 flex flex-col transition-all',
+        // Mobile: anchored to bottom, full width minus gutter, rounded top only
+        'bottom-0 left-0 right-0 rounded-t-2xl sm:bottom-6 sm:left-auto sm:right-6 sm:w-[360px] sm:rounded-2xl',
+        isMinimized ? 'h-14' : 'h-[75vh] sm:h-[520px]',
       )}
     >
       {/* Header */}

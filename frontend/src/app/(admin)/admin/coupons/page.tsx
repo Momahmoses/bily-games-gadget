@@ -96,7 +96,7 @@ export default function CouponsPage() {
         <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
           <h2 className="font-bold text-gray-900 mb-4">Create Coupon</h2>
           <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Code *</label>
                 <input {...register('code')} placeholder="SAVE10" className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-500 font-mono uppercase" />
@@ -123,7 +123,7 @@ export default function CouponsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               {couponType === 'PERCENTAGE' && (
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Max Discount (₦)</label>
